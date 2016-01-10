@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import logging
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)-8s %(message)s',
                     datefmt='%a, %d %b %Y %H:%M:%S')
 
@@ -28,7 +28,7 @@ while True:
    prev_state = curr_state
    curr_state = GPIO.input(PIR_PIN)
 
-   logging.info ("%s" % curr_state)
+   logging.debug ("%s" % curr_state)
 
    if curr_state != prev_state:
       new_state = "HIGH" if curr_state else "LOW"
