@@ -11,40 +11,32 @@ logging.basicConfig(level=logging.INFO,
                     datefmt='%a, %d %b %Y %H:%M:%S')
 
 
-logging.info ("Test ctrl+c to exit")
-logging.info ("Initialising... 10sec...")
+def motion_callback(PIR_PIN):
+   state=GPIO.input (PIR_PIN)
 
-GPIO.setmode(GPIO.BCM)
+   if state == 1:
+       logging.info ("Motion detected ! %s" % state)
+       #subprocess.call ( ["omxplayer", "-o", "hdmi", "evil_laugh.mp3"] )
+       #espeak.synth("Step into my office")
+   else:
+       logging.info ("Reset. %s" % state)
+
+logging.info ("Welcome to PIR test module. CTRL+C to Quit.")
 
 PIR_PIN=4
 
 try:
-    GPIO.setup(PIR_PIN, GPIO.IN, GPIO.PUD_DOWN)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(PIR_PIN, GPIO.IN)
 
+    logging.info ("Initialising... 10sec...")
     time.sleep(10)
+    GPIO.add_event_detect(PIR_PIN, GPIO.BOTH, callback=motion_callback)
     logging.info ("Ready for action...")
 
-    prev_state = False
-    curr_state = False
-
     while True:
-       prev_state = curr_state
-       curr_state = GPIO.input(PIR_PIN)
+       time.sleep (100)
 
-       logging.debug ("%s" % curr_state)
-
-       if curr_state != prev_state:
-          new_state = "HIGH" if curr_state else "LOW"
-          logging.debug ("Motion detected!!! %s" % (new_state))
-
-          if new_state == "HIGH":
-               logging.info ("Motion detected! (STATE=HIGH)")
-               #espeak.synth("Step into my office")
-               subprocess.call ( ["omxplayer", "-o", "hdmi", "evil_laugh.mp3"] )
-          else:
-               logging.info ("Reset (STATE=LOW)")
-
-       time.sleep(0.1)
 except KeyboardInterrupt:
     GPIO.cleanup()
     logging.info ("Goodbye.")
